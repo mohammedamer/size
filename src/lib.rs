@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::error::Error;
+use std::fmt::Write;
 use walkdir::WalkDir;
 
 pub fn total_size(root: String, pattern: String) -> Result<u64, Box<dyn Error>> {
@@ -24,7 +25,22 @@ pub fn total_size(root: String, pattern: String) -> Result<u64, Box<dyn Error>> 
         }
     }
 
-    println!("total size: {total_size} bytes");
+    let mut total_size_str = String::new();
+
+    let size_kb = total_size as f64 / 1024.;
+    let size_mb = size_kb / 1024.;
+
+    write!(&mut total_size_str, "Total size: {total_size} bytes")?;
+
+    if size_kb > 1. {
+        write!(&mut total_size_str, " / {size_kb:.2} KB")?;
+    }
+
+    if size_mb > 1. {
+        write!(&mut total_size_str, " / {size_mb:.2} MB")?;
+    }
+
+    println!("{total_size_str}");
 
     return Ok(total_size);
 }
