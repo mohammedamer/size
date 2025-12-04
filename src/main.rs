@@ -2,7 +2,7 @@ use std::error::Error;
 
 use clap::Parser;
 
-use size::total_size;
+use fsz::total_size;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = "Accumulate file size by pattern.")]
