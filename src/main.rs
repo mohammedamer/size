@@ -2,7 +2,7 @@ use std::error::Error;
 
 use clap::Parser;
 
-use fsz::total_size;
+use fsz::{total_size, print_fmt};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = "Accumulate file size by pattern.")]
@@ -16,7 +16,8 @@ struct Args {
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
-    total_size(&args.root, &args.pattern)?;
+    let size = total_size(&args.root, &args.pattern)?;
+    print_fmt(size)?;
 
     Ok(())
 }

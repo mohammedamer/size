@@ -26,7 +26,7 @@ pub fn total_size(root: &str, pattern: &str) -> Result<u64, Box<dyn Error>> {
 
     let re = Regex::new(pattern)?;
 
-    let mut total_size = 0;
+    let mut agg_size = 0;
 
     for entry in fs::read_dir(root)? {
         let entry = entry?;
@@ -41,20 +41,28 @@ pub fn total_size(root: &str, pattern: &str) -> Result<u64, Box<dyn Error>> {
                         size = dir_size(&entry.path())?;
                     }
 
-                    total_size += size;
+                    agg_size += size;
 
                     println!("path: {path}\nsize: {size} bytes");
+                }
+            } else if entry.file_type()?.is_dir() {
+                if let Some(path) = entry.path().to_str() {
+                    agg_size += total_size(path, pattern)?;
                 }
             }
         }
     }
 
+    return Ok(agg_size);
+}
+
+pub fn print_fmt(size: u64) -> Result<(), Box<dyn Error>> {
     let mut total_size_str = String::new();
 
-    let size_kb = total_size as f64 / 1024.;
+    let size_kb = size as f64 / 1024.;
     let size_mb = size_kb / 1024.;
 
-    write!(&mut total_size_str, "Total size: {total_size} bytes")?;
+    write!(&mut total_size_str, "Total size: {size} bytes")?;
 
     if size_kb > 1. {
         write!(&mut total_size_str, " / {size_kb:.2} KB")?;
@@ -65,6 +73,5 @@ pub fn total_size(root: &str, pattern: &str) -> Result<u64, Box<dyn Error>> {
     }
 
     println!("{total_size_str}");
-
-    return Ok(total_size);
+    Ok(())
 }
