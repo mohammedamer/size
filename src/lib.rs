@@ -1,21 +1,45 @@
 use regex::Regex;
 use std::error::Error;
 use std::fmt::Write;
+use std::path::Path;
+use std::{fs, io};
 use walkdir::WalkDir;
 
-pub fn total_size(root: String, pattern: String) -> Result<u64, Box<dyn Error>> {
-    let mut total_size = 0;
-    let re = Regex::new(&pattern)?;
+fn dir_size(path: &Path) -> Result<u64, Box<dyn Error>> {
+    let mut size = 0;
 
-    for entry in WalkDir::new(root).into_iter().filter_map(Result::ok) {
-        if !entry.file_type().is_file() {
-            continue;
-        }
+    for entry in WalkDir::new(path) {
+        let entry = entry?;
+        size += entry.metadata()?.len();
+    }
+
+    Ok(size)
+}
+
+pub fn total_size(root: &str, pattern: &str) -> Result<u64, Box<dyn Error>> {
+    if Path::new(&root).is_file() {
+        return Err(Box::new(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Root can't be a file!",
+        )));
+    }
+
+    let re = Regex::new(pattern)?;
+
+    let mut total_size = 0;
+
+    for entry in fs::read_dir(root)? {
+        let entry = entry?;
 
         if let Some(filename) = entry.file_name().to_str() {
             if re.is_match(filename) {
                 if let Some(path) = entry.path().to_str() {
-                    let size = entry.metadata()?.len();
+                    let mut size = 0;
+                    if entry.file_type()?.is_file() {
+                        size = entry.metadata()?.len();
+                    } else if entry.file_type()?.is_dir() {
+                        size = dir_size(&entry.path())?;
+                    }
 
                     total_size += size;
 

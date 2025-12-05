@@ -17,7 +17,7 @@ struct Args {
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
-    total_size(args.root, args.pattern)?;
+    total_size(&args.root, &args.pattern)?;
 
     Ok(())
 }
