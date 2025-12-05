@@ -7,7 +7,6 @@ use fsz::total_size;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = "Accumulate file size by pattern.")]
 struct Args {
-    #[arg(short, long)]
     root: String,
 
     #[arg(short, long)]
