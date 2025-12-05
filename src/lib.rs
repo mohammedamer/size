@@ -1,3 +1,4 @@
+use console::style;
 use regex::Regex;
 use std::error::Error;
 use std::fmt::Write;
@@ -62,7 +63,8 @@ pub fn print_fmt(size: u64) -> Result<(), Box<dyn Error>> {
     let size_kb = size as f64 / 1024.;
     let size_mb = size_kb / 1024.;
 
-    write!(&mut total_size_str, "Total size: {size} bytes")?;
+    write!(&mut total_size_str, "{}", style("Total size: ").red().bold())?;
+    write!(&mut total_size_str, "{size} bytes")?;
 
     if size_kb > 1. {
         write!(&mut total_size_str, " / {size_kb:.2} KB")?;
